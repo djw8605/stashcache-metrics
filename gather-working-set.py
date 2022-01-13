@@ -8,7 +8,7 @@ import os
 import glob
 import pandas as pd
 from multiprocessing import Pool
-
+import sys
 
 def connect_elastic():
     client = Elasticsearch(
@@ -52,12 +52,12 @@ def gather_data(from_date, to_date, client):
             response = run_search(after=after)
 
     composite_buckets = []
-    composite_buckets.append({'filename': A('terms', field='filename.keyword', missing_bucket=True)})
+    composite_buckets.append({'filename': A('terms', field='filename.keyword', missing_bucket=False)})
     metrics = [
         ['filesize', 'max', 0],
         ['read', 'sum', 0]
     ]
-    response = scan_aggs(s, composite_buckets, size=100)
+    response = scan_aggs(s, composite_buckets, size=1000)
 
 
     #curBucket = s.aggs.bucket('filename', 'terms', field='filename.keyword', size=(2**31)-1)
@@ -141,9 +141,11 @@ def main():
     global working_files
     client = connect_elastic()
     # Gather data by month
-    from_date = dateutil.parser.parse("2020-03-01")
+    from_str = sys.argv[1]
+    to_str = sys.argv[2]
+    from_date = dateutil.parser.parse(from_str)
     to_date = datetime.now()
-    to_date = dateutil.parser.parse("2020-09-01")
+    to_date = dateutil.parser.parse(to_str)
     cur_from_date = from_date
     interval = dateutil.relativedelta.relativedelta(months=1)
     cur_to_date = min(from_date + interval, to_date)
