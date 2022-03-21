@@ -1,0 +1,30 @@
+universe    = vanilla     
+executable  = run.sh
+arguments = $(START) $(END)
+transfer_input_files = my_env.tar.gz, gather-working-set.py
+
+log         = job.log
+output      = job.out.$(START).$(END)
+error       = job.error.$(START).$(END)
+
+# Require nodes that can access the correct OSG modules
+Requirements = (HAS_MODULES =?= true) && (OSGVO_OS_STRING == "RHEL 7")
+
+request_cpus    = 1 
+request_memory  = 4GB
+request_disk    = 2GB
+
+#queue START, END from (
+#01-01-2021, 02-01-2021,
+#02-01-2021, 03-01-2021,
+#03-01-2021, 04-01-2021,
+#04-01-2021, 05-01-2021,
+#05-01-2021, 06-01-2021,
+#06-01-2021, 07-01-2021,
+#07-01-2021, 08-01-2021,
+#08-01-2021, 09-01-2021,
+#09-01-2021, 10-01-2021,
+#10-01-2021, 11-01-2021,
+#11-01-2021, 12-01-2021,
+#12-01-2021, 01-01-2022
+#)

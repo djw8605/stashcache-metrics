@@ -144,11 +144,12 @@ def main():
     from_str = sys.argv[1]
     to_str = sys.argv[2]
     from_date = dateutil.parser.parse(from_str)
-    to_date = datetime.now()
+    #to_date = datetime.now()
     to_date = dateutil.parser.parse(to_str)
     cur_from_date = from_date
     interval = dateutil.relativedelta.relativedelta(months=1)
     cur_to_date = min(from_date + interval, to_date)
+    print(f"Starting from {from_date} to {to_date} with interval {interval}")
     pool = Pool(processes=10)
     
     while cur_from_date < to_date:
