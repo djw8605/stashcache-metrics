@@ -1,5 +1,5 @@
-elasticsearch
-elasticsearch_dsl
+#elasticsearch_dsl
 numpy
 pandas
 python-dateutil
+opensearch-py

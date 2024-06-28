@@ -1,6 +1,7 @@
 
-from elasticsearch_dsl import Search, A
-from elasticsearch import Elasticsearch
+#from elasticsearch_dsl import Search, A
+from opensearchpy import Search, A, OpenSearch
+#from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
 import dateutil
 import json
@@ -11,7 +12,7 @@ from multiprocessing import Pool
 import sys
 
 def connect_elastic():
-    client = Elasticsearch(
+    client = OpenSearch(
         ['https://gracc.opensciencegrid.org/q'],
         timeout=600, use_ssl=True, verify_certs=False)
     return client
@@ -19,7 +20,7 @@ def connect_elastic():
 working_files = {}
 
 def gather_data(from_date, to_date, client):
-    
+    print(f"Searching for data from {from_date} to {to_date}")
     index = "xrd-stash*"
     #from_date = datetime.datetime.now() - datetime.timedelta(days=365)
     #from_date = from_date.replace(hour=0, minute=0, second=0, microsecond=0, day=1)
@@ -102,8 +103,30 @@ def map_paths(old_files):
             new_filename = "/".join(filename.split('/')[:4])
         elif filename.startswith('/merra2/'):
             new_filename = '/merra2'
+        elif filename.startswith('/jlab'):
+            new_filename = "/".join(filename.split('/')[:3])
+        elif filename.startswith('/gluex'):
+            new_filename = '/gluex'
         elif filename.startswith('/hcc'):
             new_filename = "/".join(filename.split('/')[:6])
+        elif filename.startswith('/ospool/PROTECTED'):
+            new_filename = "/".join(filename.split('/')[:4])
+        elif filename.startswith('/ospool'):
+            new_filename = "/".join(filename.split('/')[:5])
+        elif filename.startswith('/nrp/protected'):
+            new_filename = "/".join(filename.split('/')[:4])
+        elif filename.startswith('/nrp'):
+            new_filename = "/".join(filename.split('/')[:3])
+        elif filename.startswith('/knightlab'):
+            new_filename = '/knightlab'
+        elif filename.startswith('/igwn'):
+            new_filename = "/".join(filename.split('/')[:3])
+        elif filename.startswith('/et-gw'):
+            new_filename = "/".join(filename.split('/')[:3])
+        elif filename.startswith('/path-facility/data'):
+            new_filename = "/".join(filename.split('/')[:4])
+
+
         else:
             print("Not found: {}".format(dirname2))
             continue
@@ -151,17 +174,23 @@ def main():
     cur_to_date = min(from_date + interval, to_date)
     print(f"Starting from {from_date} to {to_date} with interval {interval}")
     pool = Pool(processes=10)
+
+    json_files = []
     
     while cur_from_date < to_date:
         print(cur_from_date)
         print(cur_to_date)
-
-        if os.path.exists('{}.json'.format(cur_from_date.strftime('%m-%Y-%d'))):
+        json_filename = '{}.json'.format(cur_from_date.strftime('%m-%Y-%d'))
+        json_files.append(json_filename)
+        print(f"Checking for {json_filename}")
+        if os.path.exists(json_filename):
+            print(f"Found {json_filename}, moving on")
             cur_from_date += interval
             cur_to_date += interval
             cur_to_date = min(to_date, cur_to_date)
             continue
 
+        print(f"Did not find data for {cur_from_date} to {cur_to_date}")
         pool.apply_async(pool_start, (cur_from_date, cur_to_date))
 
         #del working_files
@@ -204,7 +233,7 @@ def main():
     # Post processing
     all_data = {}
 
-    for filename in glob.glob("*.json"):
+    for filename in json_files:
         new_files = None
         with open(filename, 'r') as json_file:
             new_files = json.load(json_file)

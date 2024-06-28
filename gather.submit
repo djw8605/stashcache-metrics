@@ -1,32 +1,38 @@
 universe    = vanilla     
-executable  = run.sh
-arguments = 01-01-2021 01-01-2022
-transfer_input_files = my_env.tar.gz, gather-working-set.py, stashcp
+executable  = gather.sh
+arguments = 06-01-2023 05-01-2024
+#arguments = $(START $(END)
+#transfer_input_files = my_env.tar.gz, gather-working-set.py, osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/01-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/02-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/03-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/04-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/05-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/06-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/07-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/08-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/09-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/10-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/11-2022-01.json,osdf:///osgconnect/public/dweitzel/stashcache-metrics/data/12-2022-01.json
 
+
+
+transfer_input_files = my_env.tar.gz, gather-working-set.py, json_outputs.tar.gz
 log         = job.log
 output      = job.out.gather
 error       = job.error.gather
 
 # Require nodes that can access the correct OSG modules
-Requirements = (HAS_MODULES =?= true) && (OSGVO_OS_STRING == "RHEL 7")
-
+#Requirements = (HAS_MODULES =?= true) && (OSGVO_OS_STRING == "RHEL 7")
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-ubuntu-20.04:latest"
++ProjectName = "OSG-Staff"
 request_cpus    = 1 
-request_memory  = 8GB
+request_memory  = 10GB
 request_disk    = 10GB
-
+transfer_output_remaps = "output.csv = output.gather.csv"
+notify_user = dweitzel@unl.edu
 queue
 
 #queue START, END from (
-#01-01-2021, 02-01-2021,
-#02-01-2021, 03-01-2021,
-#03-01-2021, 04-01-2021,
-#04-01-2021, 05-01-2021,
-#05-01-2021, 06-01-2021,
-#06-01-2021, 07-01-2021,
-#07-01-2021, 08-01-2021,
-#08-01-2021, 09-01-2021,
-#09-01-2021, 10-01-2021,
-#10-01-2021, 11-01-2021,
-#11-01-2021, 12-01-2021,
-#12-01-2021, 01-01-2022
+#06-01-2023, 07-01-2023,
+#07-01-2023, 08-01-2023,
+#08-01-2023, 09-01-2023,
+#09-01-2023, 10-01-2023,
+#10-01-2023, 11-01-2023,
+#11-01-2023, 12-01-2023,
+#12-01-2023, 01-01-2024,
+#01-01-2024, 02-01-2024,
+#02-01-2024, 03-01-2024,
+#03-01-2024, 04-01-2024,
+#04-01-2024, 05-01-2024,
+#05-01-2024, 06-01-2024
 #)
